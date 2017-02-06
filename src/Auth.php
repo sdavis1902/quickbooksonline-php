@@ -9,7 +9,7 @@ class Auth {
 	private $tc;
 
     public function __construct(){
-        $this->server = new \Wheniwork\OAuth1\Client\Server\Intuit([
+        $this->server = new \sdavis1902\QboLaravel\Server([
             'identifier'   => 'qyprdHfIYfNesgmDEFbBf2xh5kwXiz',
             'secret'       => 'utKbBj79C12hJ63Ra6td7Gkqu9Xl4qONY9nrF4w3',
             'callback_uri' => 'http://packagebase.sdhub.ca/test/bob2',
@@ -17,6 +17,10 @@ class Auth {
 
 		$this->tempc = Session::has('temporary_credentials') ? Session::get('temporary_credentials') : null;
 		$this->tc = Session::has('token_credentials') ? Session::get('token_credentials') : null;
+		$this->realm_id = Session::has('realm_id') ? Session::get('realm_id') : null;
+		$this->client = $this->server->createHttpClient();
+
+		$this->base_url = 'https://sandbox-quickbooks.api.intuit.com/';
     }
 
 	public function connect(){
@@ -30,7 +34,7 @@ class Auth {
 	}
 
 	public function handleCallback($request){
-		if( $request->has('oauth_token') && $request->has('oauth_verifier') ){
+		if( $request->has('oauth_token') && $request->has('oauth_verifier') && $request->has('realmId') ){
 
            // Retrieve the temporary credentials we saved before
             $temporaryCredentials = $request->session()->get('temporary_credentials');
@@ -38,6 +42,7 @@ class Auth {
             // We will now retrieve token credentials from the server
             $tokenCredentials = $this->server->getTokenCredentials($temporaryCredentials, $request->input('oauth_token'), $request->input('oauth_verifier'));
 			$request->session()->put('token_credentials', $tokenCredentials);
+			$request->session()->put('realm_id', $request->input('realmId'));
         }
 	}
 
@@ -46,4 +51,22 @@ class Auth {
 		return $user;
 	}
 
+	public function doOtherCall(){
+
+		$url = $this->base_url . 'v3/company/'.$this->realm_id.'/employee';
+
+		$args = [
+			'GivenName' => 'Scott',
+			'FamilyName' => 'Davis'
+		];
+
+		$headers = $this->server->getCallHeaders($this->tc, 'POST', $url);
+
+		$customer = $this->client->post($url, [
+			'headers' => $headers,
+			'form_params' => $args
+		]);
+
+		dd($customer);
+	}
 }
