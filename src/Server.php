@@ -26,9 +26,9 @@ class Server extends \Wheniwork\OAuth1\Client\Server\Intuit {
             $method
         );
 
-		$return = 'OAuth oauth_token="'.rawurlencode($parameters['oauth_token']).'", ';
+		$return = 'OAuth   oauth_token="'.rawurlencode($parameters['oauth_token']).'", ';
 		$return.= 'oauth_nonce="'.rawurlencode($parameters['oauth_nonce']).'", ';
-		$return.= 'OAuth oauth_consumer_key="'.rawurlencode($parameters['oauth_consumer_key']).'", ';
+		$return.= 'oauth_consumer_key="'.rawurlencode($parameters['oauth_consumer_key']).'", ';
 		$return.= 'oauth_signature_method="'.rawurlencode($parameters['oauth_signature_method']).'", ';
 		$return.= 'oauth_timestamp="'.rawurlencode($parameters['oauth_timestamp']).'", ';
 		$return.= 'oauth_version="'.rawurlencode($parameters['oauth_version']).'", ';

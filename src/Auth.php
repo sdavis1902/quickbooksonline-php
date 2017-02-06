@@ -52,20 +52,50 @@ class Auth {
 	}
 
 	public function doOtherCall(){
+		$url = $this->base_url . 'v3/company/'.$this->realm_id.'/query?query=select * from Employee';
+
+		$headers = $this->server->getCallHeaders($this->tc, 'GET', $url);
+		$headers['Accept'] = 'application/json';
+
+		try {
+			$response = $this->client->get($url, [
+				'headers' => $headers
+			]);
+		}catch( \GuzzleHttp\Exception\ClientException $e ){
+            $response = $e->getResponse();
+            $responseBodyAsString = $response->getBody()->getContents();
+            echo $responseBodyAsString;die;
+        }
+
+		$customers = json_decode($response->getBody()->getContents());
+		$customers = $customers->QueryResponse->Employee;
+
+dd($customers);
+		echo '<pre>';
+		var_dump($customers);die;
+	}
+
+	public function createEmployee(){
 
 		$url = $this->base_url . 'v3/company/'.$this->realm_id.'/employee';
 
 		$args = [
-			'GivenName' => 'Scott',
+			'GivenName' => 'Scott 2',
 			'FamilyName' => 'Davis'
 		];
 
 		$headers = $this->server->getCallHeaders($this->tc, 'POST', $url);
-
-		$customer = $this->client->post($url, [
-			'headers' => $headers,
-			'form_params' => $args
-		]);
+//dd($headers);
+		try {
+			$customer = $this->client->post($url, [
+				'headers' => $headers,
+				'json' => $args
+			]);
+		}catch( \GuzzleHttp\Exception\ClientException $e ){
+            $response = $e->getResponse();
+            $responseBodyAsString = $response->getBody()->getContents();
+            echo $responseBodyAsString;die;
+        }
 
 		dd($customer);
 	}
