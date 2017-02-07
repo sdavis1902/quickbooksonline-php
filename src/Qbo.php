@@ -13,14 +13,14 @@ class Qbo {
 
     public function __construct(){
         $this->server = new \sdavis1902\QboLaravel\Server([
-            'identifier'   => 'qyprdHfIYfNesgmDEFbBf2xh5kwXiz',
-            'secret'       => 'utKbBj79C12hJ63Ra6td7Gkqu9Xl4qONY9nrF4w3',
-            'callback_uri' => 'http://packagebase.sdhub.ca/test/bob2',
+            'identifier'   => env('QBO_IDENTIFIER'),
+            'secret'       => env('QBO_SECRET'),
+            'callback_uri' => env('QBO_CALLBACK_URL'),
         ]);
 
-		$this->tempc = Session::has('temporary_credentials') ? Session::get('temporary_credentials') : null;
-		$this->tc = Session::has('token_credentials') ? Session::get('token_credentials') : null;
-		$this->realm_id = Session::has('realm_id') ? Session::get('realm_id') : null;
+		$this->tempc = Session::has('qbo_temporary_credentials') ? Session::get('qbo_temporary_credentials') : null;
+		$this->tc = Session::has('qbo_token_credentials') ? Session::get('qbo_token_credentials') : null;
+		$this->realm_id = Session::has('qbo_realm_id') ? Session::get('qbo_realm_id') : null;
 		$this->client = $this->server->createHttpClient();
 
 		$this->base_url = 'https://sandbox-quickbooks.api.intuit.com/';

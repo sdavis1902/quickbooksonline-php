@@ -6,7 +6,7 @@ use Session;
 class Auth extends Qbo{
 	public function connect(){
 		$temporaryCredentials = $this->server->getTemporaryCredentials();
-        Session::put('temporary_credentials', $temporaryCredentials);
+        Session::put('qbo_temporary_credentials', $temporaryCredentials);
         $this->server->authorize($temporaryCredentials);
 	}
 
@@ -20,12 +20,12 @@ class Auth extends Qbo{
 		if( $request->has('oauth_token') && $request->has('oauth_verifier') && $request->has('realmId') ){
 
            // Retrieve the temporary credentials we saved before
-            $temporaryCredentials = $request->session()->get('temporary_credentials');
+            $temporaryCredentials = $request->session()->get('qbo_temporary_credentials');
 
             // We will now retrieve token credentials from the server
             $tokenCredentials = $this->server->getTokenCredentials($temporaryCredentials, $request->input('oauth_token'), $request->input('oauth_verifier'));
-			$request->session()->put('token_credentials', $tokenCredentials);
-			$request->session()->put('realm_id', $request->input('realmId'));
+			$request->session()->put('qbo_token_credentials', $tokenCredentials);
+			$request->session()->put('qbo_realm_id', $request->input('realmId'));
         }
 	}
 }
