@@ -1,5 +1,5 @@
 <?php
-namespace sdavis1902\QboLaravel;
+namespace sdavis1902\QboPhp;
 
 use Session;
 

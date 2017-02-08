@@ -35,7 +35,7 @@ $ composer require sdavis1902/qbo-laravel
 ## Usage
 
 ``` php
-$skeleton = new sdavis1902\QboLaravel();
+$skeleton = new sdavis1902\QboPhp();
 echo $skeleton->echoPhrase('Hello, League!');
 ```
 

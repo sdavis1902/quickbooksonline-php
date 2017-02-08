@@ -1,12 +1,15 @@
 {
-    "name": "sdavis1902/qbo-laravel",
+    "name": "sdavis1902/quickbooksonline-php",
     "type": "library",
     "description": "",
     "keywords": [
         "sdavis1902",
-        "QboLaravel"
+        "QboPhp",
+		"QuickBooksOnlinePhp",
+		"QuickBooksOnline",
+		"QuickBooks"
     ],
-    "homepage": "https://github.com/sdavis1902/QboLaravel",
+    "homepage": "https://github.com/sdavis1902/quickbooksonline-php",
     "license": "MIT",
     "authors": [
         {
@@ -27,12 +30,12 @@
     },
     "autoload": {
         "psr-4": {
-            "sdavis1902\\QboLaravel\\": "src"
+            "sdavis1902\\QboPhp\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "sdavis1902\\QboLaravel\\": "tests"
+            "sdavis1902\\QboPhp\\": "tests"
         }
     },
     "scripts": {

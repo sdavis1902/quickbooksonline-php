@@ -1,7 +1,8 @@
 <?php
-namespace sdavis1902\QboLaravel;
+namespace sdavis1902\QboPhp;
 
 use Session;
+use Exception;
 
 class Qbo {
 	protected $server;
@@ -12,7 +13,7 @@ class Qbo {
 	private $base_url;
 
     public function __construct(){
-        $this->server = new \sdavis1902\QboLaravel\Server([
+        $this->server = new \sdavis1902\QboPhp\Server([
             'identifier'   => env('QBO_IDENTIFIER'),
             'secret'       => env('QBO_SECRET'),
             'callback_uri' => env('QBO_CALLBACK_URL'),
@@ -27,7 +28,7 @@ class Qbo {
     }
 
 	public function __call($method, $args){
-		$class = '\\sdavis1902\\QboLaravel\\'.$method;
+		$class = '\\sdavis1902\\QboPhp\\'.$method;
 		$exists = class_exists($class);
 
 		if( !$exists ){
@@ -43,7 +44,7 @@ class Qbo {
 		return $user;
 	}
 
-	protected function call($url, $method){
+	protected function call($url, $method, $args = []){
 		//$url = $this->base_url . 'v3/company/'.$this->realm_id.'/query?query=select * from Employee';
 		$url = $this->base_url . str_replace('{realm_id}', $this->realm_id, $url);
 		$method = strtolower($method);
@@ -53,28 +54,28 @@ class Qbo {
 
 		try {
 			$response = $this->client->$method($url, [
-				'headers' => $headers
+				'headers' => $headers,
+				'json' => $args
 			]);
 		}catch( \GuzzleHttp\Exception\ClientException $e ){
             $response = $e->getResponse();
-            $responseBodyAsString = $response->getBody()->getContents();
-            echo $responseBodyAsString;die;
+			$results = json_decode($response->getBody()->getContents());
+
+			if( isset( $results->Fault ) ){
+				$message = $results->Fault->type;
+				foreach( $results->Fault->Error as $error ){
+					$message.= " - $error->code $error->Message: $error->Detail";
+				}
+
+				throw new Exception($message);
+			}
+            echo json_encode($results);
+			die;
         }
 
 		$results = json_decode($response->getBody()->getContents());
 
 		return $results;
-	}
-
-	public function doOtherCall(){
-		$url = 'v3/company/{realm_id}/query?query=select * from Employee';
-
-		$customers = $this->call($url, 'get');;
-		$customers = $customers->QueryResponse->Employee;
-
-dd($customers);
-		echo '<pre>';
-		var_dump($customers);die;
 	}
 
 	public function createEmployee(){

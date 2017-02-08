@@ -1,5 +1,5 @@
 <?php
-namespace sdavis1902\QboLaravel\Facades;
+namespace sdavis1902\QboPhp\Laravel\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
