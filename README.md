@@ -1,61 +1,89 @@
-# qbo-laravel
+# quickbooksonline-php
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
-[![Build Status][ico-travis]][link-travis]
-[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
-[![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
+This is a php package for Intuits QuickBooks Online api.  It can also handle the all the OAuth stuff.
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what
-PSRs you support to avoid any confusion with users and contributors.
-
-## Structure
-
-If any of the following are applicable to your project, then the directory structure should follow industry best practises by being named the following.
-
-```
-bin/        
-config/
-src/
-tests/
-vendor/
-```
-
+This package is still under development.  So far the OAuth stuff is complete and a few api calls.  It is just using guzzle to do the rest api calls, so is pretty simple to create more calls, just a matter of finding the time.  I will wait until most of the calls are abailable before I make a release.
 
 ## Install
 
 Via Composer
 
 ``` bash
-$ composer require sdavis1902/qbo-laravel
+$ composer require sdavis1902/quickbooksonline-php
 ```
+
+As there is not yet a stable release, you will probably need to specify the version.
 
 ## Usage
 
 ``` php
-$skeleton = new sdavis1902\QboPhp();
-echo $skeleton->echoPhrase('Hello, League!');
+// Start OAuth, will be redirected to qbo to sign in
+$auth = new \sdavis1902\QboPhp\Auth($identifier, $secret, $callback_url);
+$auth->connect();
+
+// put this on your callback page to handle the return from qbo
+$auth = new \sdavis1902\QboPhp\Auth($identifier, $secret, $callback_url);
+$auth->handleCallback();
+
+// to check if your still connect ( is still incomplete )
+$auth->check();
+
+// do a call
+$customer = new \sdavis1902\QboPhp\Customer($identifier, $secret, $callback_url);
+$result = $customer->get(2);
+
+// get the user whos account we are managing
+$qbo = new \sdavis1902\QboPhp\qbo($identifier, $secret, $callback_url);
+$user = $qbo->getUser();
+
+// alternatly, you can make an object of Qbo class and call other classes through it like this
+$qbo = new \sdavis1902\QboPhp\qbo($identifier, $secret, $callback_url);
+$qbo->Auth()->connect();
+$qbo->Customer()->get(2);
+// the Qbo class, if it can not find the method you call, 
+// it will look for a class in the same namespace instead and create an object if it finds one
 ```
 
-## Change log
+Laravel 5
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+Add Service Provider and Alias
 
-## Testing
+``` php
+'providers' => [
+    ... 
+    sdavis1902\QboPhp\Laravel\QboServiceProvider::class,
+],
+```
 
-``` bash
-$ composer test
+``` php
+'aliases' => [
+    ... 
+    'Qbo' => sdavis1902\QboPhp\Laravel\Facades\Qbo::class,
+],
+```
+
+Add the following to your .env file
+
+``` php
+QBO_IDENTIFIER=identifier
+QBO_SECRET=secret
+QBO_CALLBACK_URL=http://someurl
+```
+
+You can now make the same calls through the Qbo class
+
+``` php
+Qbo::Auth()->connect();
+Qbo::Customer()->get(1);
 ```
 
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.
-
-## Security
-
-If you discover any security related issues, please email s.davis1902@gmail.com instead of using the issue tracker.
 
 ## Credits
 

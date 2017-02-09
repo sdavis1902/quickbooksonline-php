@@ -1,7 +1,7 @@
 <?php
 namespace sdavis1902\QboPhp;
 
-use Session;
+// use Session;
 use Exception;
 
 class Qbo {
@@ -12,16 +12,24 @@ class Qbo {
 	private $client;
 	private $base_url;
 
-    public function __construct(){
+    public function __construct($identifier = null, $secret = null, $callback_url = null){
         $this->server = new \sdavis1902\QboPhp\Server([
-            'identifier'   => env('QBO_IDENTIFIER'),
-            'secret'       => env('QBO_SECRET'),
-            'callback_uri' => env('QBO_CALLBACK_URL'),
+            'identifier'   => $identifier ? $identifier : env('QBO_IDENTIFIER'),
+            'secret'       => $secret ? $secret : env('QBO_SECRET'),
+            'callback_uri' => $callback_url ? $callback_url : env('QBO_CALLBACK_URL'),
         ]);
 
-		$this->tempc = Session::has('qbo_temporary_credentials') ? Session::get('qbo_temporary_credentials') : null;
-		$this->tc = Session::has('qbo_token_credentials') ? Session::get('qbo_token_credentials') : null;
-		$this->realm_id = Session::has('qbo_realm_id') ? Session::get('qbo_realm_id') : null;
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+
+		// if Laravel, could use these
+		//$this->tempc = Session::has('qbo_temporary_credentials') ? Session::get('qbo_temporary_credentials') : null;
+		//$this->tc = Session::has('qbo_token_credentials') ? Session::get('qbo_token_credentials') : null;
+		//$this->realm_id = Session::has('qbo_realm_id') ? Session::get('qbo_realm_id') : null;
+		$this->tempc = isset( $_SESSION['qbo_temporary_credentials'] ) ? unserialize($_SESSION['qbo_temporary_credentials']) : null;
+		$this->tc = isset( $_SESSION['qbo_token_credentials'] ) ? unserialize($_SESSION['qbo_token_credentials']) : null;
+		$this->realm_id = isset( $_SESSION['qbo_realm_id'] ) ? $_SESSION['qbo_realm_id'] : null;
 		$this->client = $this->server->createHttpClient();
 
 		$this->base_url = 'https://sandbox-quickbooks.api.intuit.com/';
