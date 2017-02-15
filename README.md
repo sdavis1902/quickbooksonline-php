@@ -34,7 +34,18 @@ $auth->check();
 
 // do a call
 $customer = new \sdavis1902\QboPhp\Customer($identifier, $secret, $callback_url);
-$result = $customer->get(2);
+$result = $customer->find(2);
+
+// search
+$results = $customer->select(['Id', 'GivenName])->order('id', 'desc')->limit(2)->start(10)->get();
+$results = $customer->where('GivenName', '=', 'Bill')->where('FamilyName', '=', 'Lucchini')->first();
+
+// update
+$result = $customer->update([
+	'Id' => 5,
+	'GivenName' => 'Billy',
+	'FamilyName' => 'Guy'
+]);
 
 // get the user whos account we are managing
 $qbo = new \sdavis1902\QboPhp\qbo($identifier, $secret, $callback_url);
@@ -43,7 +54,7 @@ $user = $qbo->getUser();
 // alternatly, you can make an object of Qbo class and call other classes through it like this
 $qbo = new \sdavis1902\QboPhp\qbo($identifier, $secret, $callback_url);
 $qbo->Auth()->connect();
-$qbo->Customer()->get(2);
+$qbo->Customer()->find(2);
 // the Qbo class, if it can not find the method you call, 
 // it will look for a class in the same namespace instead and create an object if it finds one
 ```
@@ -78,7 +89,7 @@ You can now make the same calls through the Qbo class
 
 ``` php
 Qbo::Auth()->connect();
-Qbo::Customer()->get(1);
+Qbo::Customer()->find(1);
 ```
 
 ## Contributing

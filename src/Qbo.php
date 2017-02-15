@@ -11,6 +11,12 @@ class Qbo {
 	private $realm_id;
 	private $client;
 	private $base_url;
+	protected $query_table = null;
+	protected $query_select = null;
+	protected $query_where = null;
+	protected $query_order = null;
+	protected $query_start = 0;
+	protected $query_limit = 100;
 
     public function __construct($identifier = null, $secret = null, $callback_url = null){
         $this->server = new \sdavis1902\QboPhp\Server([
@@ -86,28 +92,91 @@ class Qbo {
 		return $results;
 	}
 
-	public function createEmployee(){
+	public function select(array $fields){
+		$this->query_select = $fields;
+		return $this;
+	}
 
-		$url = $this->base_url . 'v3/company/'.$this->realm_id.'/employee';
+	public function where($field, $operator, $value){
+		if( !$this->query_where ) $this->query_where = [];
 
-		$args = [
-			'GivenName' => 'Scott 2',
-			'FamilyName' => 'Davis'
-		];
+		$this->query_where[] = [$field, $operator, $value];
 
-		$headers = $this->server->getCallHeaders($this->tc, 'POST', $url);
-//dd($headers);
-		try {
-			$customer = $this->client->post($url, [
-				'headers' => $headers,
-				'json' => $args
-			]);
-		}catch( \GuzzleHttp\Exception\ClientException $e ){
-            $response = $e->getResponse();
-            $responseBodyAsString = $response->getBody()->getContents();
-            echo $responseBodyAsString;die;
-        }
+		return $this;
+	}
 
-		dd($customer);
+	// TODO
+	public function whereIn(){
+		return $this;
+	}
+
+	// TODO
+	public function whereLike(){
+		return $this;
+	}
+
+	public function order($field, $direction){
+		if( !$this->query_order ) $this->query_order = [];
+
+		$this->query_order[] = [$field, $direction];
+
+		return $this;
+	}
+
+	public function start($start){
+		$this->query_start = $start;
+		return $this;
+	}
+
+	public function limit($limit){
+		$this->query_limit = $limit;
+		return $this;
+	}
+
+	public function getQuery(){
+		if( !$this->query_table ) throw new \Exception('No query table set');
+
+		$url = 'v3/company/{realm_id}/query?query=select '. ( $this->query_select ? join(',',$this->query_select) : '*' ) .' from '.$this->query_table;
+
+		if( $this->query_where ){
+			foreach( $this->query_where as$key => $where ){
+				$url.= $key === 0 ? ' WHERE ' : ' AND ';
+				$url.= $where[0].$where[1]."'$where[2]'";
+			}
+		}
+
+		// order by
+		if( $this->query_order ){
+			foreach( $this->query_order as $order ){
+				$url.= ' ORDERBY '.$order[0].' '.$order[1];
+			}
+		}
+
+		if( $this->query_start ){
+			$url.= ' STARTPOSITION '.$this->query_start;
+		}
+
+		if( $this->query_limit ){
+			$url.= ' MAXRESULTS '.$this->query_limit;
+		}
+
+		return $url;
+	}
+
+	public function get(){
+		$url = $this->getQuery();
+
+		$results = $this->call($url, 'get');
+
+		$results = $results->QueryResponse;
+		$return = isset( $results->{$this->query_table} ) ? $results->{$this->query_table} : [];
+
+		return $return;
+	}
+
+	public function first(){
+		$results = $this->get();
+
+		return isset( $results[0] ) ? $results[0] : false;
 	}
 }

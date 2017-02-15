@@ -4,6 +4,8 @@ namespace sdavis1902\QboPhp;
 use Exception;
 
 class Customer extends Qbo{
+	protected $query_table = 'Customer';
+
 	public function create($args){
 		$url = 'v3/company/{realm_id}/customer';
 
@@ -16,7 +18,7 @@ class Customer extends Qbo{
 
 	}
 
-	public function get($id){
+	public function find($id){
 		if( !$id || !is_numeric($id) ) throw new Exception('invalid customer ID');
 
 		$url = 'v3/company/{realm_id}/customer/' . $id;
@@ -25,6 +27,15 @@ class Customer extends Qbo{
 		$customer = $results->Customer;
 
 		return $customer;
+	}
+
+	public function totalCount(){
+		$url = 'v3/company/{realm_id}/query?query=SELECT COUNT(*) FROM Customer';
+
+		$results = $this->call($url, 'get');
+		$count = $results->QueryResponse->totalCount;
+
+		return $count;
 	}
 
 	public function search(){
