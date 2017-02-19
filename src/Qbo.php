@@ -179,4 +179,55 @@ class Qbo {
 
 		return isset( $results[0] ) ? $results[0] : false;
 	}
+
+	protected function getSyncToken($id){
+		$result = $this->find($id);
+		return isset( $result->SyncToken ) ? $result->SyncToken : 0;
+	}
+
+	public function totalCount(){
+		$url = 'v3/company/{realm_id}/query?query=SELECT COUNT(*) FROM '.$this->query_table;
+
+		$results = $this->call($url, 'get');
+		$count = $results->QueryResponse->totalCount;
+
+		return $count;
+	}
+
+	public function create(array $args){
+		$url = 'v3/company/{realm_id}/' . strtolower($this->query_table);
+
+		if( isset( $args['Id'] ) ) throw new Exception('Id not allowed when calling create');
+
+		$results = $this->call($url, 'post', $args);
+		$result = $results->{$this->query_table};
+
+		return $result;
+	}
+
+	public function find($id){
+		if( !$id || !is_numeric($id) ) throw new Exception('invalid customer ID');
+
+		$url = 'v3/company/{realm_id}/'. strtolower($this->query_table) .'/' . $id;
+
+		$results = $this->call($url, 'get');
+		$return = $results->{$this->query_table};
+
+		return $return;
+	}
+
+	public function update(array $args){
+		$url = 'v3/company/{realm_id}/' . strtolower($this->query_table);
+
+		if( !isset( $args['Id'] ) ) throw new Exception('must provide an Id in order to do update');
+
+		$args['sparse'] = true;
+		$args['SyncToken'] = $this->getSyncToken($args['Id']);
+
+		$results = $this->call($url, 'post', $args);
+		$result = $results->{$this->query_table};
+
+		return $result;
+	}
+
 }
