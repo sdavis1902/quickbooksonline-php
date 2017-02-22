@@ -1,8 +1,6 @@
 <?php
 namespace sdavis1902\QboPhp;
 
-// use Session;
-
 class Auth extends Qbo{
 	public function connect(){
 		$temporaryCredentials = $this->server->getTemporaryCredentials();
@@ -22,6 +20,8 @@ class Auth extends Qbo{
 
            // Retrieve the temporary credentials we saved before
             $temporaryCredentials = $this->tempc;
+
+			if(!$temporaryCredentials) return false;
 
             // We will now retrieve token credentials from the server
             $tokenCredentials = $this->server->getTokenCredentials($temporaryCredentials, $_GET['oauth_token'], $_GET['oauth_verifier']);

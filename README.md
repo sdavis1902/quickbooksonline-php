@@ -37,7 +37,7 @@ $customer = new \sdavis1902\QboPhp\Customer($identifier, $secret, $callback_url)
 $result = $customer->find(2);
 
 // search
-$results = $customer->select(['Id', 'GivenName])->order('id', 'desc')->limit(2)->start(10)->get();
+$results = $customer->select(['Id', 'GivenName'])->order('id', 'desc')->limit(2)->start(10)->get();
 $results = $customer->where('GivenName', '=', 'Bill')->where('FamilyName', '=', 'Lucchini')->first();
 
 // update
